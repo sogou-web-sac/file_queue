@@ -2,30 +2,32 @@ import sys
 import os
 import time
 
-seeds_all = sys.argv[1]
-pointer   = sys.argv[2]
-n_split   = int(sys.argv[3])
+records_file= sys.argv[1]
+pointer     = sys.argv[2]
+n_block     = int(sys.argv[3])
 
-if not os.path.exists(seeds_all):
+if not os.path.exists(records_file):
   exit(0)
 
-urls = open(seeds_all).read().strip().split("\n")
-n_block = len(urls) / n_split
-
 if not os.path.exists(pointer):
-  p_begin = 0
+  b = 0
 else:
-  p_begin = int(open(pointer).read().strip())
-
-if p_begin + n_block <= len(urls):
-  p_end = p_begin + n_block
-else:
-  p_end = len(urls)
+  b = int(open(pointer).read().strip())
 
 
-for i in xrange(p_begin, p_end):
-  print urls[i]
+with open(records_file) as fi:
+  i = 0
+  for line in fi:
+    if i < b:
+      i += 1
+      continue
+    elif i >= b and i < b+n_block:
+      print line.strip()
+    else:
+      break
+    i += 1
 
 # reset p_begin
-p_begin = p_end
-open(pointer, "wb").write(str(p_end))
+b = i
+open(pointer, "wb").write(str(b))
+
